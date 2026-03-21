@@ -99,21 +99,11 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     } catch (error: any) {
       console.error("Broadcast error caught:", error);
       
-      let errorMessage = error.message || "Unknown broadcast error";
+      let errorMessage = error?.message || "Unknown broadcast error";
       
-      if (error.rawLog) {
-        errorMessage = `${errorMessage}: ${error.rawLog}`;
-      } else if (error.context?.rawLog) {
-        errorMessage = `${errorMessage}: ${error.context.rawLog}`;
-      } else if (typeof error === 'object' && error !== null) {
-        try {
-          const detail = JSON.stringify(error);
-          if (detail.includes("raw_log")) {
-            const match = detail.match(/"raw_log":"([^"]+)"/);
-            if (match) errorMessage += `: ${match[1]}`;
-          }
-        } catch (e) {}
-      }
+      try {
+        errorMessage += "\nFull Error Context: " + JSON.stringify(error, Object.getOwnPropertyNames(error));
+      } catch(e) {}
       
       throw new Error(errorMessage);
     }
