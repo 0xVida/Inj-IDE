@@ -1,4 +1,4 @@
-FROM node:20-bookworm
+FROM node:22-bookworm
 
 RUN apt-get update && apt-get install -y \
     curl \
@@ -14,7 +14,7 @@ RUN rustup target add wasm32-unknown-unknown
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
-RUN npm ci
+RUN npm install
 
 COPY . .
 
