@@ -64,6 +64,104 @@ export function Toolbar({ onCompile, onDeploy, onTest, onSave, isCompiling, isDe
     toast.success("Copied to clipboard!");
   };
 
+  const renderWalletManager = () => (
+    <>
+      <div className="px-4 py-3 border-b border-border bg-muted/30">
+        <h3 className="text-xs font-bold text-foreground">Local Wallet Manager</h3>
+        <p className="text-[10px] text-muted-foreground">In-app wallet for developers</p>
+      </div>
+
+      <div className="p-4 space-y-4">
+        {address ? (
+          <div className="space-y-3">
+            <div className="p-3 rounded-lg bg-muted/50 border border-border space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Connected Address</span>
+                <button onClick={() => copyToClipboard(address)} className="text-muted-foreground hover:text-primary transition-colors">
+                  <Copy className="h-3 w-3" />
+                </button>
+              </div>
+              <div className="text-[11px] font-mono break-all text-foreground bg-background/50 p-2 rounded border border-border/50">
+                {address}
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <a 
+                href="https://testnet.faucet.injective.network/" 
+                target="_blank" 
+                rel="noreferrer"
+                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-[11px] font-semibold rounded-lg bg-accent/20 text-accent border border-accent/30 hover:bg-accent/30 transition-all"
+              >
+                <ExternalLink className="h-3 w-3" />
+                Faucet
+              </a>
+              <button 
+                onClick={disconnect}
+                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-[11px] font-semibold rounded-lg bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive/20 transition-all text-destructive"
+              >
+                <LogOut className="h-3 w-3 text-destructive" />
+                Logout
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">Private Key</label>
+              <div className="relative">
+                <input
+                  type="password"
+                  placeholder="Enter 0x... or plain hex"
+                  value={tempPk}
+                  onChange={(e) => setTempPk(e.target.value)}
+                  className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all pr-10"
+                  onKeyDown={(e) => e.key === "Enter" && handleConnect()}
+                />
+                <button 
+                  onClick={handleConnect}
+                  className="absolute right-2 top-1.5 p-1 rounded hover:bg-primary/20 text-primary transition-all"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              </div>
+              <p className="text-[9px] text-muted-foreground flex items-center gap-1 mt-1">
+                <AlertCircle className="h-3 w-3" /> Your key stays in your browser
+              </p>
+            </div>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center text-[10px] uppercase">
+                <span className="bg-card px-2 text-muted-foreground">or</span>
+              </div>
+            </div>
+
+            <button
+              onClick={generateWallet}
+              className="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-lg bg-primary text-white font-bold text-xs hover:bg-primary/90 transition-all shadow-md active:scale-95"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              Generate New Wallet
+            </button>
+
+            <a
+              href="https://testnet.faucet.injective.network/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground hover:text-primary transition-colors py-1 underline-offset-4 hover:underline"
+            >
+              <ExternalLink className="h-3 w-3" />
+              Get Testnet Funds
+            </a>
+          </div>
+        )}
+      </div>
+    </>
+  );
+
   return (
     <div className="bg-toolbar-bg border-b border-border sticky top-0 z-40">
       {/* Desktop */}
@@ -143,99 +241,7 @@ export function Toolbar({ onCompile, onDeploy, onTest, onSave, isCompiling, isDe
 
             {showWalletMenu && (
               <div className="absolute right-0 mt-2 w-72 bg-card/95 backdrop-blur-md border border-border rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-                <div className="px-4 py-3 border-b border-border bg-muted/30">
-                  <h3 className="text-xs font-bold text-foreground">Local Wallet Manager</h3>
-                  <p className="text-[10px] text-muted-foreground">In-app wallet for developers</p>
-                </div>
-
-                <div className="p-4 space-y-4">
-                  {address ? (
-                    <div className="space-y-3">
-                      <div className="p-3 rounded-lg bg-muted/50 border border-border space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Connected Address</span>
-                          <button onClick={() => copyToClipboard(address)} className="text-muted-foreground hover:text-primary transition-colors">
-                            <Copy className="h-3 w-3" />
-                          </button>
-                        </div>
-                        <div className="text-[11px] font-mono break-all text-foreground bg-background/50 p-2 rounded border border-border/50">
-                          {address}
-                        </div>
-                      </div>
-
-                      <div className="flex gap-2">
-                        <a 
-                          href="https://testnet.faucet.injective.network/" 
-                          target="_blank" 
-                          rel="noreferrer"
-                          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-[11px] font-semibold rounded-lg bg-accent/20 text-accent border border-accent/30 hover:bg-accent/30 transition-all"
-                        >
-                          <ExternalLink className="h-3 w-3" />
-                          Faucet
-                        </a>
-                        <button 
-                          onClick={disconnect}
-                          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-[11px] font-semibold rounded-lg bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive/20 transition-all text-destructive"
-                        >
-                          <LogOut className="h-3 w-3 text-destructive" />
-                          Logout
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">Private Key</label>
-                        <div className="relative">
-                          <input
-                            type="password"
-                            placeholder="Enter 0x... or plain hex"
-                            value={tempPk}
-                            onChange={(e) => setTempPk(e.target.value)}
-                            className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all pr-10"
-                            onKeyDown={(e) => e.key === "Enter" && handleConnect()}
-                          />
-                          <button 
-                            onClick={handleConnect}
-                            className="absolute right-2 top-1.5 p-1 rounded hover:bg-primary/20 text-primary transition-all"
-                          >
-                            <Plus className="h-4 w-4" />
-                          </button>
-                        </div>
-                        <p className="text-[9px] text-muted-foreground flex items-center gap-1 mt-1">
-                          <AlertCircle className="h-3 w-3" /> Your key stays in your browser
-                        </p>
-                      </div>
-
-                      <div className="relative">
-                        <div className="absolute inset-0 flex items-center">
-                          <span className="w-full border-t border-border" />
-                        </div>
-                        <div className="relative flex justify-center text-[10px] uppercase">
-                          <span className="bg-card px-2 text-muted-foreground">or</span>
-                        </div>
-                      </div>
-
-                      <button
-                        onClick={generateWallet}
-                        className="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-lg bg-primary text-white font-bold text-xs hover:bg-primary/90 transition-all shadow-md active:scale-95"
-                      >
-                        <RefreshCw className="h-3.5 w-3.5" />
-                        Generate New Wallet
-                      </button>
-
-                      <a
-                        href="https://testnet.faucet.injective.network/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground hover:text-primary transition-colors py-1 underline-offset-4 hover:underline"
-                      >
-                        <ExternalLink className="h-3 w-3" />
-                        Get Testnet Funds
-                      </a>
-                    </div>
-                  )}
-                </div>
+                {renderWalletManager()}
               </div>
             )}
           </div>
@@ -307,28 +313,8 @@ export function Toolbar({ onCompile, onDeploy, onTest, onSave, isCompiling, isDe
           </button>
 
           {showWalletMenu && (
-             <div className="mt-2 space-y-3 p-3 bg-muted/30 rounded-lg border border-border">
-                {address ? (
-                  <button onClick={disconnect} className="w-full py-2 text-xs font-bold text-destructive hover:underline">
-                    Logout
-                  </button>
-                ) : (
-                  <div className="space-y-3">
-                    <input
-                      type="password"
-                      placeholder="Paste Private Key"
-                      value={tempPk}
-                      onChange={(e) => setTempPk(e.target.value)}
-                      className="w-full bg-muted border border-border rounded px-3 py-2 text-xs font-mono"
-                    />
-                    <button onClick={handleConnect} className="w-full py-2 bg-primary text-white rounded font-bold text-xs">
-                      Connect
-                    </button>
-                    <button onClick={generateWallet} className="w-full py-2 text-primary text-[10px] font-bold">
-                      or Generate New Private Key
-                    </button>
-                  </div>
-                )}
+             <div className="mt-2 bg-card border border-border rounded-xl shadow-lg z-50 overflow-hidden animate-in fade-in duration-200">
+                {renderWalletManager()}
              </div>
           )}
         </div>

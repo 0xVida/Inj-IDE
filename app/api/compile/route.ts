@@ -6,6 +6,29 @@ import path from "path";
 
 const execAsync = promisify(exec);
 
+class CompileQueue {
+  private active = 0;
+  private maxConcurrent = 3;
+  private queue: (() => void)[] = [];
+
+  async enqueue<T>(task: () => Promise<T>): Promise<T> {
+    if (this.active >= this.maxConcurrent) {
+      await new Promise<void>(resolve => this.queue.push(resolve));
+    }
+    this.active++;
+    try {
+      return await task();
+    } finally {
+      this.active--;
+      if (this.queue.length > 0) {
+        const next = this.queue.shift();
+        next?.();
+      }
+    }
+  }
+}
+const compileQueue = new CompileQueue();
+
 export async function POST(req: NextRequest) {
   try {
     const { projectName, files } = await req.json();
@@ -14,7 +37,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing projectName" }, { status: 400 });
     }
 
-    const workspaceDir = path.join(process.cwd(), "workspace", "projects", projectName);
+    return await compileQueue.enqueue(async () => {
+      const workspaceDir = path.join(process.cwd(), "workspace", "projects", projectName);
 
     await fs.mkdir(workspaceDir, { recursive: true });
 
@@ -113,6 +137,7 @@ export async function POST(req: NextRequest) {
         error: cleanError.trim()
       }, { status: 500 });
     }
+    });
 
   } catch (error: any) {
     console.error("Compilation error:", error);
