@@ -68,14 +68,16 @@ export async function POST(req: NextRequest) {
         try {
           if (await fs.access(wasmPath).then(() => true).catch(() => false)) {
             const optimizedPath = wasmPath.replace(".wasm", ".optimized.wasm");
-            const optCmd = `wasm-opt -Oz ${wasmPath} -o ${optimizedPath}`;
+            const optCmd = `wasm-opt -Oz --disable-sign-ext --disable-reference-types ${wasmPath} -o ${optimizedPath}`;
             
             try {
               await execAsync(optCmd);
               const wasmBuffer = await fs.readFile(optimizedPath);
               wasmBase64 = wasmBuffer.toString("base64");
-            } catch (optErr) {
+            } catch (optErr: any) {
+              const optErrorMsg = optErr.message || String(optErr);
               console.warn("wasm-opt failed or not found, falling back to unoptimized wasm:", optErr);
+              stdout += `\n[WARNING] Optimizer failed (${optErrorMsg}). Using unoptimized WASM.`;
               const wasmBuffer = await fs.readFile(wasmPath);
               wasmBase64 = wasmBuffer.toString("base64");
             }
