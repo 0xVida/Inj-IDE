@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
     const execCmd = `sh -c '${rustFlags} && ${cargoCmd}'`;
 
     try {
-      const { stdout, stderr } = await execAsync(execCmd);
+      let { stdout, stderr } = await execAsync(execCmd);
 
       let wasmBase64 = "";
       const pathsToTry = [
