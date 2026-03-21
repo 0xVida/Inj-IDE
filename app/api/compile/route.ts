@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
         try {
           if (await fs.access(wasmPath).then(() => true).catch(() => false)) {
             const optimizedPath = wasmPath.replace(".wasm", ".optimized.wasm");
-            const optCmd = `wasm-opt -O3 --disable-sign-ext --disable-reference-types --disable-bulk-memory ${wasmPath} -o ${optimizedPath}`;
+            const optCmd = `wasm-opt -Oz ${wasmPath} -o ${optimizedPath}`;
             
             try {
               await execAsync(optCmd);

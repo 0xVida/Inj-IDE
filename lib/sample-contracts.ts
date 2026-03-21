@@ -169,6 +169,17 @@ thiserror = "1.0.37"
 [dev-dependencies]
 cosmwasm-schema = "1.1.0"
 cw-multi-test = "0.15.1"
+
+[profile.release]
+opt-level = 3
+debug = false
+rpath = false
+lto = true
+debug-assertions = false
+codegen-units = 1
+panic = 'abort'
+incremental = false
+overflow-checks = true
 `,
       },
     ],
