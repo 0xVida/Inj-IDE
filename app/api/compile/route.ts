@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     const nestedCargoPath = path.join(workspaceDir, projectName, "Cargo.toml");
 
     const rustFlags = 'export RUSTFLAGS="-C target-feature=-reference-types,-sign-ext,-bulk-memory"';
-    const cargoCmd = `if [ -f ${cargoPath} ]; then cargo generate-lockfile --manifest-path ${cargoPath} && cargo update -p base64ct --precise 1.8.2 --manifest-path ${cargoPath} || true && cargo build --target wasm32-unknown-unknown --release --manifest-path ${cargoPath}; else cargo generate-lockfile --manifest-path ${nestedCargoPath} && cargo update -p base64ct --precise 1.8.2 --manifest-path ${nestedCargoPath} || true && cargo build --target wasm32-unknown-unknown --release --manifest-path ${nestedCargoPath}; fi`;
+    const cargoCmd = `if [ -f ${cargoPath} ]; then cargo generate-lockfile --manifest-path ${cargoPath} && cargo update -p base64ct --precise 1.6.0 --manifest-path ${cargoPath} || true && cargo build --target wasm32-unknown-unknown --release --manifest-path ${cargoPath}; else cargo generate-lockfile --manifest-path ${nestedCargoPath} && cargo update -p base64ct --precise 1.6.0 --manifest-path ${nestedCargoPath} || true && cargo build --target wasm32-unknown-unknown --release --manifest-path ${nestedCargoPath}; fi`;
     
     const execCmd = `sh -c '${rustFlags} && ${cargoCmd}'`;
 
