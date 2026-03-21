@@ -26,9 +26,14 @@ export function Toolbar({ onCompile, onDeploy, onTest, onSave, isCompiling, isDe
   const [tempPk, setTempPk] = useState("");
   const menuRef = useRef<HTMLDivElement>(null);
 
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      const isOutsideDesktop = menuRef.current && !menuRef.current.contains(event.target as Node);
+      const isOutsideMobile = mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node);
+      
+      if (isOutsideDesktop && isOutsideMobile) {
         setShowWalletMenu(false);
       }
     }
@@ -268,7 +273,7 @@ export function Toolbar({ onCompile, onDeploy, onTest, onSave, isCompiling, isDe
 
       {/* Mobile dropdown */}
       {mobileMenuOpen &&
-        <div className="md:hidden flex flex-col gap-2 p-3 border-t border-border bg-card animate-in slide-in-from-top duration-200">
+        <div ref={mobileMenuRef} className="md:hidden flex flex-col gap-2 p-3 border-t border-border bg-card animate-in slide-in-from-top duration-200">
           <div className="flex flex-col gap-2">
             <button
               onClick={() => { onCompile(); setMobileMenuOpen(false); }}
