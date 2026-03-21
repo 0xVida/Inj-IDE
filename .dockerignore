@@ -1,0 +1,18 @@
+node_modules/
+.next/
+out/
+dist/
+
+# Logs and Env
+*.log
+.env
+.env*.local
+
+# IDE Workspace (Do not copy huge cargo target/ caches into the docker container)
+workspace/
+
+# Git and OS
+.git/
+.gitignore
+.DS_Store
+.vscode/
