@@ -82,10 +82,11 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
       const messages = Array.isArray(msgs) ? msgs : [msgs];
 
-      console.log(`Broadcasting from address: ${address}`);
+      console.log(`Broadcasting from address: ${address} with safely bumped gas limit`);
 
       const response = await broadcaster.broadcast({ 
-        msgs: messages
+        msgs: messages,
+        gas: { gas: 4000000 }
       });
       
       console.log("Broadcast response received:", response);
