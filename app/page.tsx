@@ -8,7 +8,7 @@ import { Terminal, LogEntry } from "@/components/ide/Terminal";
 import { Toolbar } from "@/components/ide/Toolbar";
 import { ContractPanel } from "@/components/ide/ContractPanel";
 import { StatusBar } from "@/components/ide/StatusBar";
-import { sampleContracts, FileNode } from "@/lib/sample-contracts";
+import { sayHelloTemplate, counterTemplate, FileNode } from "@/lib/sample-contracts";
 import {
   PanelLeftClose,
   PanelLeftOpen,
@@ -44,11 +44,12 @@ const findParent = (nodes: FileNode[], pathParts: string[]): FileNode[] | null =
 };
 
 export default function Home() {
-  const [files, setFiles] = useState<FileNode[]>(() => cloneFiles(sampleContracts));
+  const [projectName, setProjectName] = useState("say-hello");
+  const [files, setFiles] = useState<FileNode[]>(() => cloneFiles(sayHelloTemplate));
   const [openTabs, setOpenTabs] = useState<TabInfo[]>([
-    { path: ["injective-vault", "src", "lib.rs"], name: "lib.rs" },
+    { path: ["say-hello", "src", "lib.rs"], name: "lib.rs" },
   ]);
-  const [activeTabPath, setActiveTabPath] = useState<string[]>(["injective-vault", "src", "lib.rs"]);
+  const [activeTabPath, setActiveTabPath] = useState<string[]>(["say-hello", "src", "lib.rs"]);
   const [terminalExpanded, setTerminalExpanded] = useState(true);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [network, setNetwork] = useState("injective-testnet");
@@ -108,6 +109,33 @@ export default function Home() {
   const addLog = useCallback((type: LogEntry["type"], message: string) => {
     setLogs((prev) => [...prev, { type, message, timestamp: getTimestamp() }]);
   }, []);
+
+  const handleSelectTemplate = useCallback((templateName: "say-hello" | "simple-counter") => {
+    const template = templateName === "say-hello" ? sayHelloTemplate : counterTemplate;
+    setProjectName(templateName);
+    setFiles(cloneFiles(template));
+    setUnsavedFiles(new Set());
+    
+    savedContentRef.current = {};
+    const init = (nodes: FileNode[], path: string[]) => {
+      for (const node of nodes) {
+        const p = [...path, node.name].join("/");
+        if (node.type === "file" && node.content) {
+          savedContentRef.current[p] = node.content;
+        }
+        if (node.children) init(node.children, [...path, node.name]);
+      }
+    };
+    init(template, []);
+
+    const initialPath = [templateName, "src", "lib.rs"];
+    setActiveTabPath(initialPath);
+    setOpenTabs([{ path: initialPath, name: "lib.rs" }]);
+    setLogs([]); 
+    setWasmBase64(null); 
+    setContractId(null); 
+    addLog("info", `Switched to ${templateName === "say-hello" ? "Say Hello" : "Simple Counter"} template.`);
+  }, [addLog]);
 
   const handleFileSelect = useCallback((path: string[], file: FileNode) => {
     if (file.type !== "file") return;
@@ -259,7 +287,7 @@ export default function Home() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          projectName: "injective-vault",
+          projectName: projectName,
           files: files,
         }),
       });
@@ -433,7 +461,7 @@ export default function Home() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          projectName: "injective-vault",
+          projectName: projectName,
           files: files,
         }),
       });
@@ -527,6 +555,8 @@ export default function Home() {
         network={network}
         onNetworkChange={setNetwork}
         saveStatus={saveStatus}
+        projectName={projectName}
+        onSelectTemplate={handleSelectTemplate}
       />
 
       <div className="flex-1 overflow-hidden relative">

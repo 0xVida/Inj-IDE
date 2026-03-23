@@ -6,9 +6,9 @@ export interface FileNode {
   language?: string;
 }
 
-export const sampleContracts: FileNode[] = [
+export const sayHelloTemplate: FileNode[] = [
   {
-    name: "injective-vault",
+    name: "say-hello",
     type: "folder",
     children: [
       {
@@ -151,7 +151,128 @@ fn test_execute_hello() {
         type: "file",
         language: "toml",
         content: `[package]
-name = "injective-vault"
+name = "say-hello"
+version = "0.1.0"
+authors = ["Injective Developer <dev@injective.network>"]
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+cosmwasm-std = "1.1.0"
+cw-storage-plus = "1.0.1"
+schemars = "0.8.10"
+serde = { version = "1.0.145", default-features = false, features = ["derive"] }
+thiserror = "1.0.37"
+
+[dev-dependencies]
+cosmwasm-schema = "1.1.0"
+cw-multi-test = "0.15.1"
+
+[profile.release]
+opt-level = 3
+debug = false
+rpath = false
+lto = true
+debug-assertions = false
+codegen-units = 1
+panic = 'abort'
+incremental = false
+overflow-checks = true
+strip = true
+`,
+      },
+    ],
+  },
+];
+
+export const counterTemplate: FileNode[] = [
+  {
+    name: "simple-counter",
+    type: "folder",
+    children: [
+      {
+        name: "src",
+        type: "folder",
+        children: [
+          {
+            name: "lib.rs",
+            type: "file",
+            language: "rust",
+            content: `use cosmwasm_std::{
+    entry_point, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult,
+};
+use serde::{Deserialize, Serialize};
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+pub struct InstantiateMsg {
+    pub count: i32,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+pub enum ExecuteMsg {
+    Increment {},
+    Reset { count: i32 },
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+pub enum QueryMsg {
+    GetCount {},
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+pub struct CountResponse {
+    pub count: i32,
+}
+
+#[entry_point]
+pub fn instantiate(
+    _deps: DepsMut,
+    _env: Env,
+    _info: MessageInfo,
+    _msg: InstantiateMsg,
+) -> StdResult<Response> {
+    Ok(Response::new()
+        .add_attribute("method", "instantiate")
+        .add_attribute("count", _msg.count.to_string()))
+}
+
+#[entry_point]
+pub fn execute(
+    _deps: DepsMut,
+    _env: Env,
+    _info: MessageInfo,
+    msg: ExecuteMsg,
+) -> StdResult<Response> {
+    match msg {
+        ExecuteMsg::Increment {} => Ok(Response::new().add_attribute("method", "increment")),
+        ExecuteMsg::Reset { count } => Ok(Response::new()
+            .add_attribute("method", "reset")
+            .add_attribute("count", count.to_string())),
+    }
+}
+
+#[entry_point]
+pub fn query(
+    _deps: Deps,
+    _env: Env,
+    msg: QueryMsg,
+) -> StdResult<Binary> {
+    match msg {
+        QueryMsg::GetCount {} => to_binary(&CountResponse { count: 0 }),
+    }
+}
+`,
+          },
+        ],
+      },
+      {
+        name: "Cargo.toml",
+        type: "file",
+        language: "toml",
+        content: `[package]
+name = "simple-counter"
 version = "0.1.0"
 authors = ["Injective Developer <dev@injective.network>"]
 edition = "2021"

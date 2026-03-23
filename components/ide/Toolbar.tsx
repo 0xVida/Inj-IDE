@@ -1,7 +1,8 @@
 import { 
   Play, Upload, TestTube, Settings, Network, Menu, X, 
   Wallet as WalletIcon, LogOut, ChevronDown, Check, 
-  Plus, RefreshCw, ExternalLink, Copy, AlertCircle, Save 
+  Plus, RefreshCw, ExternalLink, Copy, AlertCircle, Save,
+  Sparkles, Layers
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useWallet } from "@/context/WalletContext";
@@ -17,9 +18,11 @@ interface ToolbarProps {
   onNetworkChange: (network: string) => void;
   onSave?: () => void;
   saveStatus?: string;
+  projectName: string;
+  onSelectTemplate: (template: "say-hello" | "simple-counter") => void;
 }
 
-export function Toolbar({ onCompile, onDeploy, onTest, onSave, isCompiling, isDeploying, network, onNetworkChange, saveStatus }: ToolbarProps) {
+export function Toolbar({ onCompile, onDeploy, onTest, onSave, isCompiling, isDeploying, network, onNetworkChange, saveStatus, projectName, onSelectTemplate }: ToolbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showWalletMenu, setShowWalletMenu] = useState(false);
   const { address, disconnect, isConnecting, setPrivateKey, privateKey } = useWallet();
@@ -179,6 +182,12 @@ export function Toolbar({ onCompile, onDeploy, onTest, onSave, isCompiling, isDe
           
           <div className="flex items-center gap-2">
             <button
+              onClick={() => toast.info("AI Assistant coming soon!")}
+              className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-md bg-purple-500/10 text-purple-500 border border-purple-500/20 hover:bg-purple-500/20 transition-all shadow-sm">
+              <Sparkles className="h-3.5 w-3.5" />
+              Ask AI
+            </button>
+            <button
               onClick={onCompile}
               disabled={isCompiling}
               className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-md bg-primary text-white hover:bg-primary/90 disabled:opacity-50 transition-all shadow-sm">
@@ -217,6 +226,17 @@ export function Toolbar({ onCompile, onDeploy, onTest, onSave, isCompiling, isDe
         </div>
 
         <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 bg-secondary/50 rounded-md px-2 py-1 border border-border/50">
+            <Layers className="h-3.5 w-3.5 text-muted-foreground" />
+            <select
+              value={projectName}
+              onChange={(e) => onSelectTemplate(e.target.value as any)}
+              className="bg-transparent border-none text-[11px] font-medium text-foreground focus:outline-none focus:ring-0 cursor-pointer min-w-32 max-w-40">
+              <option value="say-hello">Say Hello Template</option>
+              <option value="simple-counter">Simple Counter Template</option>
+            </select>
+          </div>
+
           <div className="flex items-center gap-2 bg-secondary/50 rounded-md px-2 py-1 border border-border/50">
             <Network className="h-3.5 w-3.5 text-muted-foreground" />
             <select
@@ -275,6 +295,24 @@ export function Toolbar({ onCompile, onDeploy, onTest, onSave, isCompiling, isDe
       {mobileMenuOpen &&
         <div ref={mobileMenuRef} className="md:hidden flex flex-col gap-2 p-3 border-t border-border bg-card animate-in slide-in-from-top duration-200">
           <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2 bg-muted/30 rounded-lg p-2 border border-border">
+              <Layers className="h-4 w-4 text-muted-foreground ml-1" />
+              <select
+                value={projectName}
+                onChange={(e) => { onSelectTemplate(e.target.value as any); setMobileMenuOpen(false); }}
+                className="w-full bg-transparent border-none text-xs font-bold text-foreground focus:outline-none focus:ring-0 cursor-pointer">
+                <option value="say-hello">Say Hello Template</option>
+                <option value="simple-counter">Simple Counter Template</option>
+              </select>
+            </div>
+            
+            <button
+              onClick={() => { toast.info("AI Assistant coming soon!"); setMobileMenuOpen(false); }}
+              className="w-full flex items-center justify-center gap-2 py-2.5 text-xs font-bold rounded-lg bg-purple-500/10 text-purple-500 border border-purple-500/20 shadow-sm">
+              <Sparkles className="h-3.5 w-3.5" />
+              Ask AI
+            </button>
+
             <button
               onClick={() => { onCompile(); setMobileMenuOpen(false); }}
               disabled={isCompiling}
